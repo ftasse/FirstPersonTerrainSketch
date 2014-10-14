@@ -1,0 +1,103 @@
+// This file is part of TowerEngine
+// Copyright (C) 2013 Arnaud Emilien <arnaud.emilien@inria.fr>
+
+#include "TwrDynamicMatrix.h"
+#include <iostream>
+
+#define TWR_ASSERT(a,b,c)  if ((a)==true) { std::cout << (b) << std::endl; }
+#define MDAT(line, col) (((line)*_nbColumns)+ col)
+
+template <class T>
+TwrDynamicMatrix<T>::TwrDynamicMatrix(unsigned int nbColumns, unsigned int nbLines)
+: _nbLines(nbLines)
+, _nbColumns(nbColumns)
+{
+    _data = new T[_nbLines*_nbColumns];
+	
+	_pointers = new T*[_nbLines];
+	for (int i = 0; i < _nbLines; ++i)
+	{
+		_pointers[i] = _data + i*_nbLines;
+	}
+}
+
+
+template <class T>
+TwrDynamicMatrix<T>::~TwrDynamicMatrix()
+{
+	delete[] _data;
+}
+
+template <class T>
+TwrDynamicMatrix<T>::TwrDynamicMatrix(const TwrDynamicMatrix<T>& matrix)
+: _nbLines(matrix._nbLines)
+, _nbColumns(matrix._nbColumns)
+{
+	_data = new T[_nbLines*_nbColumns];
+	for (int i = 0; i < _nbLines*_nbColumns; ++i)
+	{
+		_data[i] = matrix._data[i];
+	}
+	
+	_pointers = new T*[_nbLines];
+	for (int i = 0; i < _nbLines; ++i)
+	{
+		_pointers[i] = _data + i*_nbLines;
+	}
+}
+	        
+template <class T>
+void TwrDynamicMatrix<T>::setAt(unsigned int column, unsigned int line, const T& value)
+{
+	if (line >= _nbLines)
+	{
+	        std::cout << "Set : invalid line" << std::endl;
+	        std::cout << line << std::endl;
+	        std::cout << _nbLines << std::endl;
+        	exit(0);
+	}
+	if (column >= _nbColumns)
+	{
+	        std::cout << "Set : invalid column" << std::endl;
+	        std::cout << column << std::endl;
+	        std::cout << _nbColumns << std::endl;
+        	exit(0);
+	}
+	
+	_data[MDAT(line,column)] = value;
+}
+
+template <class T>
+T&   TwrDynamicMatrix<T>::getAt(unsigned int column, unsigned int line)
+{
+	if (line >= _nbLines)
+	{
+	        std::cout << "Get : invalid line" << std::endl;
+	        std::cout << line << std::endl;
+	        std::cout << _nbLines << std::endl;
+        	exit(0);
+	}
+	if (column >= _nbColumns)
+	{
+	        std::cout << "Get : invalid column" << std::endl;
+	        std::cout << column << std::endl;
+	        std::cout << _nbColumns << std::endl;
+        	exit(0);
+	}
+	
+	
+	return _data[MDAT(line,column)];
+}
+
+template <class T>
+T* TwrDynamicMatrix<T>::operator[](int line)
+{
+	return _pointers[line];
+}
+
+
+template <class T>
+void TwrDynamicMatrix<T>::clear()
+{
+        memset(_data, 0, _nbLines*_nbColumns*sizeof(T));
+}
